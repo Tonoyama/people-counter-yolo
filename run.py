@@ -11,22 +11,19 @@ with open("coco.names","r") as f:
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i[0]-1] for i in net.getUnconnectedOutLayers()]
 
-# img=cv2.resize(img,None,fx=0.4,fy=0.3)
-
-
-# generate different colors for different classes
+# 違うクラスごとに違う色を生成する
 COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 
 cap = cv2.VideoCapture(0)
 
 def main():
     while(True):
+        # 読み込み
         ret, frame = cap.read()
         blob = cv2.dnn.blobFromImage(frame,1/255,(416,416),(0,0,0),True,crop=False)
         net.setInput(blob)
         results = net.forward(output_layers)
 
-        # Evaluate class ids, confidence score and bounding boxes for detected objects
         class_ids=[]
         confidences=[]
         boxes=[]
@@ -38,7 +35,7 @@ def main():
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
                 if confidence> confidence_threshold:
-                    # Object Detected
+                    # オブジェクト検出
                     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
                     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
                     center_x = int(detection[0]*width)
@@ -46,8 +43,6 @@ def main():
                     w = int(detection[2]*width)
                     h = int(detection[3]*height)
                     
-                    
-                    # Boundry box Co-ordinates
                     x = int(center_x-w/2)
                     y = int(center_y-h/2)
                     
@@ -55,10 +50,8 @@ def main():
                     confidences.append(float(confidence)) 
                     class_ids.append(class_id) 
                     
-        # Non-max Suppression
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.6)
 
-        # Draw final bounding boxes
         font = cv2.FONT_HERSHEY_PLAIN
         count = 0
         for i in range(len(boxes)):
