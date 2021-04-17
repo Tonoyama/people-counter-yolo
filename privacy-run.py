@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from PIL import Image
 
 net = cv2.dnn.readNet("./yolov4-tiny.weights", "./yolov4-tiny.cfg")
 
@@ -61,12 +62,25 @@ def main():
                 color = COLORS[i]
 
                 if int(class_ids[i] == 0):
-                    cv2.rectangle(frame, (x,y), (x+w, y+h), color, 2)
-                    cv2.putText(frame, label, (x, y-5), font, 1, color, 1)
+                    img = cv2.imread("./human.png")
+                    back = cv2.imread("./back.png")
+                    img_h, img_w, _ = img.shape
+                    # img = Image.open("./human.png")
+                    # img = img.resize(size=(x, y))
+                    a = w/img_w
+                    b = h/img_h                    
+                    img = cv2.resize(img, None,fx=float(a), fy=float(b))
+                    img = Image.fromarray(img)
+                    back = Image.fromarray(back)
+                    back.paste(img, (x,y))
+                    back = np.array(back, dtype=np.uint8)
+                    # frame[y:y+h, x:x+w]
+                    cv2.rectangle(back, (x,y), (x+w, y+h), color)
+                    # cv2.putText(back, label, (x, y-5), font, 1, color, 1)
                     count +=1
         print('Number of people:', count)
 
-        cv2.imshow("Detected_Images",frame)
+        cv2.imshow("Detected_Images",back)
         k = cv2.waitKey(10)
         if k == ord('q'):  break
 
