@@ -7,9 +7,9 @@ classes = []
 with open("coco.names","r") as f:
     classes = [line.strip() for line in f.readlines()]
 
-# 出力レイヤーを定義   
+# 出力レイヤーを定義
 layer_names = net.getLayerNames()
-output_layers = [layer_names[i[0]-1] for i in net.getUnconnectedOutLayers()]
+output_layers = [layer_names[i-1] for i in net.getUnconnectedOutLayers()]
 
 # 違うクラスごとに違う色を生成する
 COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
@@ -42,14 +42,14 @@ def main():
                     center_y = int(detection[1]*height)
                     w = int(detection[2]*width)
                     h = int(detection[3]*height)
-                    
+
                     x = int(center_x-w/2)
                     y = int(center_y-h/2)
-                    
-                    boxes.append([x,y,w,h]) 
-                    confidences.append(float(confidence)) 
-                    class_ids.append(class_id) 
-                    
+
+                    boxes.append([x,y,w,h])
+                    confidences.append(float(confidence))
+                    class_ids.append(class_id)
+
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.6)
 
         font = cv2.FONT_HERSHEY_PLAIN
